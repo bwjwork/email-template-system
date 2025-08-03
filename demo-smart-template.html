@@ -1,0 +1,492 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>قالب البريد الإلكتروني الذكي - نسخة تجريبية</title>
+    <style>
+        /* إعدادات عامة */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f5f5f5;
+            padding: 20px;
+            direction: rtl;
+        }
+        
+        .email-container {
+            max-width: 600px;
+            margin: 0 auto;
+            background-color: #ffffff;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+        
+        /* قسم التحكم الذكي */
+        .ai-control-panel {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 30px;
+            color: white;
+            text-align: center;
+        }
+        
+        .ai-control-panel h1 {
+            font-size: 28px;
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+        
+        .ai-control-panel p {
+            font-size: 16px;
+            margin-bottom: 25px;
+            opacity: 0.9;
+        }
+        
+        .demo-note {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-size: 14px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .input-group {
+            margin-bottom: 20px;
+        }
+        
+        .input-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            font-size: 14px;
+        }
+        
+        .input-group input {
+            width: 100%;
+            padding: 12px 16px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            background-color: rgba(255, 255, 255, 0.95);
+            color: #333;
+            direction: rtl;
+        }
+        
+        .input-group input:focus {
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.3);
+        }
+        
+        .generate-btn {
+            background: linear-gradient(135deg, #ff6b6b 0%, #ee5a24 100%);
+            color: white;
+            border: none;
+            padding: 14px 30px;
+            font-size: 16px;
+            font-weight: 600;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            min-width: 200px;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .generate-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(255, 107, 107, 0.3);
+        }
+        
+        .generate-btn:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .loading-spinner {
+            display: none;
+            width: 20px;
+            height: 20px;
+            border: 2px solid #ffffff;
+            border-top: 2px solid transparent;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-left: 10px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        /* قسم المحتوى المولّد */
+        .email-content {
+            padding: 40px 30px;
+        }
+        
+        .content-section {
+            margin-bottom: 30px;
+            padding: 20px;
+            border-radius: 8px;
+            background-color: #f8f9fa;
+            border-right: 4px solid #667eea;
+            min-height: 60px;
+            display: flex;
+            align-items: center;
+            position: relative;
+        }
+        
+        .content-section.empty {
+            background-color: #f1f3f4;
+            border-right-color: #ddd;
+        }
+        
+        .content-section h2 {
+            font-size: 18px;
+            color: #667eea;
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+        
+        .content-section .placeholder {
+            color: #999;
+            font-style: italic;
+            font-size: 14px;
+        }
+        
+        .content-section .generated-content {
+            color: #333;
+            line-height: 1.6;
+            font-size: 16px;
+        }
+        
+        /* عنوان البريد */
+        .email-title {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            font-size: 24px;
+            font-weight: 700;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        
+        /* زر الدعوة لاتخاذ إجراء */
+        .cta-section {
+            text-align: center;
+            margin-top: 40px;
+        }
+        
+        .cta-button {
+            display: inline-block;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            text-decoration: none;
+            padding: 16px 40px;
+            border-radius: 50px;
+            font-size: 18px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+        }
+        
+        .cta-button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+        }
+        
+        /* رسائل الحالة */
+        .status-message {
+            padding: 15px;
+            border-radius: 8px;
+            margin: 20px 0;
+            font-weight: 500;
+            text-align: center;
+            display: none;
+        }
+        
+        .status-message.success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        
+        .status-message.error {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        
+        /* تصميم متجاوب */
+        @media (max-width: 600px) {
+            body {
+                padding: 10px;
+            }
+            
+            .ai-control-panel {
+                padding: 20px;
+            }
+            
+            .ai-control-panel h1 {
+                font-size: 24px;
+            }
+            
+            .email-content {
+                padding: 30px 20px;
+            }
+            
+            .content-section {
+                padding: 15px;
+            }
+            
+            .generate-btn {
+                width: 100%;
+                min-width: auto;
+            }
+        }
+        
+        /* تأثيرات بصرية إضافية */
+        .fade-in {
+            animation: fadeIn 0.5s ease-in;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .pulse {
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(102, 126, 234, 0.7); }
+            70% { box-shadow: 0 0 0 10px rgba(102, 126, 234, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(102, 126, 234, 0); }
+        }
+    </style>
+</head>
+<body>
+    <div class="email-container">
+        <!-- قسم التحكم الذكي -->
+        <div class="ai-control-panel">
+            <h1>🤖 مولد المحتوى الذكي</h1>
+            <p>أدخل موضوع حملتك وسنقوم بإنشاء محتوى بريد إلكتروني احترافي تلقائياً</p>
+            
+            <div class="demo-note">
+                📝 <strong>نسخة تجريبية:</strong> هذه النسخة تعمل بمحتوى وهمي لعرض كيفية عمل النظام. في النسخة الحقيقية، سيتم الاتصال بـ OpenAI API لتوليد محتوى حقيقي.
+            </div>
+            
+            <div class="input-group">
+                <label for="campaignTopic">موضوع الحملة:</label>
+                <input type="text" id="campaignTopic" placeholder="مثال: عرض مجوهرات العيد الذهبية" value="عرض مجوهرات العيد الذهبية">
+            </div>
+            
+            <button class="generate-btn" onclick="generateDemoContent()">
+                <span class="btn-text">🚀 توليد المحتوى (تجريبي)</span>
+                <span class="loading-spinner"></span>
+            </button>
+            
+            <div class="status-message" id="statusMessage"></div>
+        </div>
+        
+        <!-- قسم المحتوى المولّد -->
+        <div class="email-content">
+            <!-- العنوان -->
+            <div class="content-section empty" id="titleSection">
+                <div>
+                    <h2>📧 عنوان البريد الإلكتروني</h2>
+                    <div class="placeholder" id="titlePlaceholder">سيتم إنشاء عنوان جذاب هنا...</div>
+                    <div class="generated-content email-title" id="titleContent" style="display: none;"></div>
+                </div>
+            </div>
+            
+            <!-- المقدمة -->
+            <div class="content-section empty" id="introSection">
+                <div>
+                    <h2>✨ المقدمة المشوقة</h2>
+                    <div class="placeholder" id="introPlaceholder">ستظهر مقدمة مشوقة هنا...</div>
+                    <div class="generated-content" id="introContent" style="display: none;"></div>
+                </div>
+            </div>
+            
+            <!-- وصف العرض -->
+            <div class="content-section empty" id="descSection">
+                <div>
+                    <h2>📝 وصف العرض أو المنتج</h2>
+                    <div class="placeholder" id="descPlaceholder">سيتم إنشاء وصف مفصل وجذاب هنا...</div>
+                    <div class="generated-content" id="descContent" style="display: none;"></div>
+                </div>
+            </div>
+            
+            <!-- زر الدعوة لاتخاذ إجراء -->
+            <div class="content-section empty" id="ctaSection">
+                <div style="width: 100%;">
+                    <h2>🎯 الدعوة لاتخاذ إجراء</h2>
+                    <div class="placeholder" id="ctaPlaceholder">سيظهر زر جذاب للدعوة لاتخاذ إجراء هنا...</div>
+                    <div class="cta-section" id="ctaContent" style="display: none;">
+                        <a href="#" class="cta-button" id="ctaButton">اكتشف الآن</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // محتوى وهمي للعرض التجريبي
+        const demoContent = {
+            "عرض مجوهرات العيد الذهبية": {
+                title: "✨ مجوهرات العيد الذهبية - بريق لا يُقاوم ✨",
+                introduction: "مرحباً بك في عالم الأناقة والجمال! 💎 نقدم لك مجموعة استثنائية من أجمل المجوهرات الذهبية المصممة خصيصاً لتضفي على إطلالتك في العيد لمسة من السحر والتميز.",
+                description: "اكتشف مجموعتنا الحصرية من المجوهرات الذهبية عيار 21 و 18 قيراط، والتي تشمل: 🌟 أساور ذهبية أنيقة بتصاميم عصرية وكلاسيكية 💍 خواتم فاخرة مرصعة بالأحجار الكريمة 📿 عقود وسلاسل ذهبية بأطوال متنوعة ⭐ أقراط مميزة تناسب جميع الأذواق. جميع قطعنا مصنوعة بأعلى معايير الجودة ومضمونة 100%.",
+                cta: "اكتشف المجموعة الآن"
+            },
+            "خصم على الملابس الشتوية": {
+                title: "❄️ تشكيلة الشتاء الأنيقة - خصومات تصل إلى 50% ❄️",
+                introduction: "مع قدوم فصل الشتاء، نقدم لك أجمل وأدفأ التشكيلات من الملابس الشتوية الأنيقة بأسعار لا تُقاوم! 🧥",
+                description: "استعد لفصل الشتاء بأناقة مع مجموعتنا المتنوعة: 🧥 معاطف شتوية فاخرة للرجال والنساء 👕 سترات صوفية ناعمة ودافئة 👖 بناطيل شتوية عملية وأنيقة 🧣 إكسسوارات شتوية (أوشحة، قفازات، قبعات). جودة عالية، تصاميم عصرية، وأسعار مناسبة للجميع.",
+                cta: "تسوق الآن واستفد من الخصم"
+            }
+        };
+        
+        // دالة توليد المحتوى التجريبي
+        function generateDemoContent() {
+            const campaignTopic = document.getElementById('campaignTopic').value.trim();
+            const statusMessage = document.getElementById('statusMessage');
+            const generateBtn = document.querySelector('.generate-btn');
+            const loadingSpinner = document.querySelector('.loading-spinner');
+            const btnText = document.querySelector('.btn-text');
+            
+            // التحقق من المدخلات
+            if (!campaignTopic) {
+                showStatus('يرجى إدخال موضوع الحملة', 'error');
+                return;
+            }
+            
+            // تفعيل حالة التحميل
+            generateBtn.disabled = true;
+            loadingSpinner.style.display = 'inline-block';
+            btnText.textContent = '⏳ جاري التوليد...';
+            generateBtn.classList.add('pulse');
+            
+            // محاكاة وقت التحميل
+            setTimeout(() => {
+                try {
+                    // البحث عن محتوى مناسب أو استخدام محتوى افتراضي
+                    let content = demoContent[campaignTopic];
+                    
+                    if (!content) {
+                        // إنشاء محتوى افتراضي إذا لم يوجد محتوى محدد
+                        content = {
+                            title: `🌟 ${campaignTopic} - عرض خاص 🌟`,
+                            introduction: `مرحباً بك! نقدم لك عرضاً رائعاً حول ${campaignTopic}. لا تفوت هذه الفرصة الذهبية للحصول على أفضل المنتجات بأسعار مميزة.`,
+                            description: `اكتشف مجموعتنا المتنوعة من ${campaignTopic} بجودة عالية وأسعار تنافسية. نحن نضمن لك الجودة والأناقة في كل منتج. استفد من عروضنا الحصرية المتاحة لفترة محدودة.`,
+                            cta: "اكتشف العرض الآن"
+                        };
+                    }
+                    
+                    // عرض المحتوى المولّد
+                    displayGeneratedContent(content);
+                    showStatus('✅ تم إنشاء المحتوى بنجاح! (نسخة تجريبية)', 'success');
+                    
+                } catch (error) {
+                    console.error('خطأ في توليد المحتوى:', error);
+                    showStatus(`❌ خطأ: ${error.message}`, 'error');
+                } finally {
+                    // إلغاء حالة التحميل
+                    generateBtn.disabled = false;
+                    loadingSpinner.style.display = 'none';
+                    btnText.textContent = '🚀 توليد المحتوى (تجريبي)';
+                    generateBtn.classList.remove('pulse');
+                }
+            }, 2000); // محاكاة وقت التحميل لثانيتين
+        }
+        
+        // دالة عرض المحتوى المولّد
+        function displayGeneratedContent(content) {
+            // العنوان
+            if (content.title) {
+                updateSection('title', content.title);
+            }
+            
+            // المقدمة
+            if (content.introduction) {
+                updateSection('intro', content.introduction);
+            }
+            
+            // الوصف
+            if (content.description) {
+                updateSection('desc', content.description);
+            }
+            
+            // زر CTA
+            if (content.cta) {
+                updateSection('cta', content.cta);
+                document.getElementById('ctaButton').textContent = content.cta;
+            }
+        }
+        
+        // دالة تحديث قسم معين
+        function updateSection(sectionName, content) {
+            const section = document.getElementById(sectionName + 'Section');
+            const placeholder = document.getElementById(sectionName + 'Placeholder');
+            const contentDiv = document.getElementById(sectionName + 'Content');
+            
+            // إخفاء النص التوضيحي وعرض المحتوى
+            placeholder.style.display = 'none';
+            contentDiv.style.display = 'block';
+            contentDiv.textContent = content;
+            
+            // إزالة فئة empty وإضافة تأثير الظهور
+            section.classList.remove('empty');
+            contentDiv.classList.add('fade-in');
+        }
+        
+        // دالة عرض رسائل الحالة
+        function showStatus(message, type) {
+            const statusMessage = document.getElementById('statusMessage');
+            statusMessage.textContent = message;
+            statusMessage.className = `status-message ${type}`;
+            statusMessage.style.display = 'block';
+            
+            // إخفاء الرسالة بعد 5 ثوان
+            setTimeout(() => {
+                statusMessage.style.display = 'none';
+            }, 5000);
+        }
+        
+        // السماح بالضغط على Enter لتوليد المحتوى
+        document.getElementById('campaignTopic').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                generateDemoContent();
+            }
+        });
+        
+        // تأثير بصري عند التركيز على حقول الإدخال
+        document.querySelectorAll('input').forEach(input => {
+            input.addEventListener('focus', function() {
+                this.parentElement.style.transform = 'scale(1.02)';
+                this.parentElement.style.transition = 'transform 0.2s ease';
+            });
+            
+            input.addEventListener('blur', function() {
+                this.parentElement.style.transform = 'scale(1)';
+            });
+        });
+        
+        // رسالة ترحيب عند تحميل الصفحة
+        window.addEventListener('load', function() {
+            showStatus('🎉 مرحباً بك في النسخة التجريبية! جرب إدخال مواضيع مختلفة لرؤية كيفية عمل النظام.', 'success');
+        });
+    </script>
+</body>
+</html>
+
